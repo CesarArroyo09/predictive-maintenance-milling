@@ -1,0 +1,8 @@
+# Temporal files
+tmp/
+
+# Virtual environment folders
+venv/
+
+# Ubuntu created files
+*Zone.Identifier
