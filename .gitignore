@@ -6,3 +6,6 @@ venv/
 
 # Ubuntu created files
 *Zone.Identifier
+
+# Cache files
+__pycache__/
