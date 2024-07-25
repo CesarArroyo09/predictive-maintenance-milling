@@ -9,3 +9,5 @@ venv/
 
 # Cache files
 __pycache__/
+
+models/
