@@ -14,11 +14,11 @@ class PreprocessingPipeline:
         self._y_test = None
         # self._standard_scaler = StandardScaler()
 
-    def fit(self, machine_failure):
+    def fit(self, machine_failure, interaction_terms: bool = False):
         self._transformed_machine_failure = machine_failure.copy()
         self._transform_categorical()
         self._label_encoding_target()
-        self._transform_numerical()
+        self._transform_numerical(interaction_terms=interaction_terms)
 
     def transform_split(self):
         return self._X_train, self._X_test, self._y_train, self._y_test
@@ -125,7 +125,17 @@ class PreprocessingPipeline:
             self._transformed_machine_failure["Failure type"] != 0
         ).astype(int)
 
-    def _transform_numerical(self):
+    def _transform_numerical(self, interaction_terms: bool = False):
+        if interaction_terms:
+            self._transformed_machine_failure["Temperature difference [K]"] = (
+                self._transformed_machine_failure["Process temperature [K]"]
+                - self._transformed_machine_failure["Air temperature [K]"]
+            )
+            self._transformed_machine_failure["Rotational power"] = (
+                self._transformed_machine_failure["Torque [Nm]"]
+                * self._transformed_machine_failure["Rotational speed [rpm]"]
+            )
+
         X = self._transformed_machine_failure.drop(
             columns=["Failure type", "Machine failure"]
         )
@@ -141,6 +151,11 @@ class PreprocessingPipeline:
             "Torque [Nm]",
             "Tool wear [min]",
         ]
+
+        if interaction_terms:
+            standard_scaler_columns.extend(
+                ["Temperature difference [K]", "Rotational power"]
+            )
 
         X_train_categorical = X_train.drop(columns=standard_scaler_columns)
         X_test_categorical = X_test.drop(columns=standard_scaler_columns)
